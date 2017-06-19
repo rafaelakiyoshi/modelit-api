@@ -1,7 +1,8 @@
-var db = require('../config/dbconnection')
+var db = require('../config/dbconnection')()
 
 exports.test = function(req, res) {
-    db.open()
-    res.send('test endcdcpoint is working!')
-    db.close()
+    db.collection('leis').find().count(function(err,items) {
+        console.log(items)
+    })
+    res.send('test endcpoint is working!')
 }
