@@ -15,3 +15,6 @@ app.get('/user/:email', api.get);
 app.delete('/user/:id', api.delete);
 app.put('/user/:id', api.update);
 app.post('/user', api.add);
+
+app.post('/diagram', api.addDiagram);
+app.get('/listdiagrams/:id', api.listDiagram);
