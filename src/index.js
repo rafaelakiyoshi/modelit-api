@@ -3,11 +3,12 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var mongoose = require('mongoose')
 mongoose.connect('mongodb://root:root@ds263988.mlab.com:63988/modelit')
+var porta = process.env.PORT || 3000
 
 app.use(cors())
 
 app.use(bodyParser.json())
-app.listen(3000, function () {
+app.listen(porta, function () {
   console.log('Server running on port 3000!')
 })
 
