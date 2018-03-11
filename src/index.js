@@ -1,6 +1,8 @@
 var app = require('./config/custom-express')()
 var bodyParser = require('body-parser');
 var cors = require('cors');
+var mongoose = require('mongoose')
+mongoose.connect('mongodb://root:root@ds263988.mlab.com:63988/modelit')
 
 app.use(cors())
 
