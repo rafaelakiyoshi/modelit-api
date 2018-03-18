@@ -29,9 +29,11 @@
     "generator-django-rest": "^0.5.1",
     "mongoose": "^4.10.6",
     "node-cmd": "^3.0.0",
+    "node-zip": "^1.1.1",
     "nodemon": "^1.14.11",
     "shelljs": "^0.8.1",
     "thinky": "^2.3.9",
-    "yo": "^2.0.1"
+    "yo": "^2.0.1",
+    "zip-folder": "^1.0.0"
   }
 }
