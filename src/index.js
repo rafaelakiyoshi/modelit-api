@@ -13,6 +13,7 @@ app.listen(porta, function () {
 })
 
 var api = require('./endpoints/user');
+var diagram = require('./endpoints/diagram');
 app.get('/user', api.list);
 app.get('/user/:email', api.get);
 app.delete('/user/:id', api.delete);
@@ -21,3 +22,5 @@ app.post('/user', api.add);
 
 app.post('/diagram', api.addDiagram);
 app.get('/listdiagrams/:id', api.listDiagram);
+
+app.get('/code', diagram.generateCode);
