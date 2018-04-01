@@ -23,4 +23,4 @@ app.post('/user', api.add);
 app.post('/diagram', api.addDiagram);
 app.get('/listdiagrams/:id', api.listDiagram);
 
-app.get('/code', diagram.generateCode);
+app.get('/code/:id', diagram.generateCode);

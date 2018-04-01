@@ -42,13 +42,26 @@ exports.list = function (req, res) {
 exports.addDiagram = function (req, res) {
     console.log('tentando salvar diagrama');
     var newDiagram = new Diagram(req.body.diagram)
-    newDiagram.save(function (error, result) {
-        console.log('error: ',error, 'result: ', result)
-        if (error != null) {
-            res.json({ message: error });
+    Diagram.findOneAndUpdate({
+        title: newDiagram.title, 
+        emailOwner: newDiagram.emailOwner,
+        json: newDiagram.json
+    }, newDiagram, {upsert:true, 'new': true}, function (err, response) {
+        if(response){
+            res.json(response)
         } else {
-            res.json({ message: 'ok' })
+            Diagram.findOne({
+                title: newDiagram.title, 
+                emailOwner: newDiagram.emailOwner,
+                json: newDiagram.json}, function (error, diagrams) {
+                if (error != null) {
+                    res.json({ message: err });
+                } else {
+                    res.json(diagrams)
+                }
+            })
         }
+
     })
 };
 
