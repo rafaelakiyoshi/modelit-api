@@ -3,7 +3,8 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var mongoose = require('mongoose')
 mongoose.connect('mongodb://root:root@ds263988.mlab.com:63988/modelit')
-var porta = process.env.PORT || 3000
+// var porta = process.env.PORT || 3000
+var porta = 3000
 
 app.use(cors())
 
@@ -24,3 +25,5 @@ app.post('/diagram', api.addDiagram);
 app.get('/listdiagrams/:id', api.listDiagram);
 
 app.get('/code/:id', diagram.generateCode);
+
+app.post('/codetoview', diagram.generateCodeToView);

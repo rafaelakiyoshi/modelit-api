@@ -1,71 +1,76 @@
 const fs = require('fs');
 
-exports.coding = async (diagram) => {
-    var models = `
-from django.db import models
+exports.codingControllers = async (diagram, writeFile=true, strings) => {
+    console.log('TENTANDO CODAR CONTROLLERS!', strings)
+    var myDiagram = JSON.parse(diagram.json)
+    var controller = 
+`from django.http import HttpResponse
 `
-var myDiagram = JSON.parse(diagram.json)
+    for(var model in Object.keys(strings)){
+        controller = controller +
+`from .controller import ${Object.keys(strings)[model]}
+`   
+    }
+    for (var fragment in myDiagram.nodeDataArray) {
+        console.log(myDiagram.nodeDataArray[fragment])
+        if(myDiagram.nodeDataArray[fragment].category == 'task'){
+            console.log('DEU MATCH COM TASK: ', myDiagram.nodeDataArray[fragment])
+            controller = controller +
+`
+def ${myDiagram.nodeDataArray[fragment].text.toLowerCase()}(request):
+    return HttpResponse()
+`
+        }
+    }
+    return controller
+}
+
+
+exports.coding = async (diagram, writeFile=true) => {
+    var models = 
+`from django.db import models
+`
+    var myDiagram = JSON.parse(diagram.json)
+    var strings = {}
     var attr = catchAttr(myDiagram.nodeDataArray, myDiagram.linkDataArray)
     for (var fragment in myDiagram.nodeDataArray) {
-       for(var link in myDiagram.linkDataArray){
-           if(myDiagram.nodeDataArray[fragment].key == myDiagram.linkDataArray[link].from){
-               if(myDiagram.linkDataArray[link].category == '-->' && myDiagram.linkDataArray[link].text.match(/is-a/i)){
-                var stringAttr = ``   
-                if(attr[`${myDiagram.nodeDataArray[fragment].key}`]){
-                    for(var at in attr[`${myDiagram.nodeDataArray[fragment].key}`]){
-                        stringAttr = stringAttr + 
-`    ${attr[`${myDiagram.nodeDataArray[fragment].key}`][at]} = models.CharField(max_length=100)
-                        ` 
-                    }
-
-                }
-                var stringAttrDad = `` 
-                findKey(myDiagram.nodeDataArray, findText(myDiagram.nodeDataArray, myDiagram.linkDataArray[link].to))
-                
-                if(attr[`${findKey(myDiagram.nodeDataArray, findText(myDiagram.nodeDataArray, myDiagram.linkDataArray[link].to))}`]){
-                    console.log(attr[`${findKey(myDiagram.nodeDataArray, findText(myDiagram.nodeDataArray, myDiagram.linkDataArray[link].to))}`], `${findKey(myDiagram.nodeDataArray, 
-                        findText(myDiagram.nodeDataArray, myDiagram.linkDataArray[link].to))}`)  
-                    for(var at in attr[`${findKey(myDiagram.nodeDataArray, findText(myDiagram.nodeDataArray, myDiagram.linkDataArray[link].to))}`]){
-                        stringAttrDad = stringAttrDad + 
-`    ${attr[`${findKey(myDiagram.nodeDataArray, findText(myDiagram.nodeDataArray, myDiagram.linkDataArray[link].to))}`][at]} = models.CharField(max_length=100)
-` 
-                    }
-                    console.log('A STRING DAD: ', stringAttrDad)
-                }
-                    models = models +`
-class ${findText(myDiagram.nodeDataArray, myDiagram.linkDataArray[link].to)}(models.Model):
-${stringAttrDad}
-
-class ${myDiagram.nodeDataArray[fragment].text}(${findText(myDiagram.nodeDataArray, myDiagram.linkDataArray[link].to)}):
-${stringAttr}
+        if(myDiagram.nodeDataArray[fragment].category == 'actor'){
+            strings[`${myDiagram.nodeDataArray[fragment].text}`] = `
+class ${myDiagram.nodeDataArray[fragment].text}(models.Model):
 `
-               } else if(myDiagram.linkDataArray[link].to.match(/^quality.*/)) {
-  
-               } else {
-
-                var stringAttr = `` 
-                findKey(myDiagram.nodeDataArray, findText(myDiagram.nodeDataArray, myDiagram.linkDataArray[link].to))
-                
-                if(attr[`${findKey(myDiagram.nodeDataArray, findText(myDiagram.nodeDataArray, myDiagram.linkDataArray[link].to))}`]){
-                    console.log(attr[`${findKey(myDiagram.nodeDataArray, findText(myDiagram.nodeDataArray, myDiagram.linkDataArray[link].to))}`], `${findKey(myDiagram.nodeDataArray, 
-                        findText(myDiagram.nodeDataArray, myDiagram.linkDataArray[link].to))}`)  
-                    for(var at in attr[`${findKey(myDiagram.nodeDataArray, findText(myDiagram.nodeDataArray, myDiagram.linkDataArray[link].to))}`]){
-                        stringAttr = stringAttr + 
-`    ${attr[`${findKey(myDiagram.nodeDataArray, findText(myDiagram.nodeDataArray, myDiagram.linkDataArray[link].to))}`][at]} = models.CharField(max_length=100)
-` 
-                    }
-                    console.log('A STRING: ', stringAttr)
-                }
-                models = models +`
-class ${findText(myDiagram.nodeDataArray, myDiagram.linkDataArray[link].to)}(models.Model):
-${stringAttr}
-`
-               }
-           }
-       }
+        }
     }
-    classGenerator(models)
-};
+    for(var link in myDiagram.linkDataArray){
+        if(myDiagram.linkDataArray[link].text){
+            if(myDiagram.linkDataArray[link].category == '-->' && myDiagram.linkDataArray[link].text.match(/is-a/i)){
+            strings[`${findText(myDiagram.nodeDataArray, myDiagram.linkDataArray[link].from)}`] = `
+class ${findText(myDiagram.nodeDataArray, myDiagram.linkDataArray[link].from)}(${findText(myDiagram.nodeDataArray, myDiagram.linkDataArray[link].to)}):
+`
+        }}
+    }
+    for (var fragment in myDiagram.nodeDataArray) {
+        if(myDiagram.nodeDataArray[fragment].category == 'actor'){
+            var stringAttr = ``
+            for(var att in attr[`${myDiagram.nodeDataArray[fragment].text}`]){
+                stringAttr = stringAttr + 
+`    ${attr[`${myDiagram.nodeDataArray[fragment].text}`][att]} = models.CharField(max_length=100)
+` 
+            }
+            strings[`${myDiagram.nodeDataArray[fragment].text}`] = strings[`${myDiagram.nodeDataArray[fragment].text}`] + 
+stringAttr
+        }
+    }
+    for(var model in strings){
+        models = models + strings[model]
+    }
+    if(writeFile){
+        var controllers = this.codinControllers(diagram, writeFile, strings)
+        classGenerator(models)
+    } else {
+        return [models, strings]
+    }
+}
+
 
 classGenerator = (classInfo) => {
 
@@ -93,14 +98,13 @@ findKey = (iterator, finder) => {
 }
 
 catchAttr = (nodeDataArray, linkDataArray) => {
-    var attr = []
+    var attr = {}
     for (var fragment in nodeDataArray) {
-        attr[`${nodeDataArray[fragment].key}`] = []
+        attr[`${nodeDataArray[fragment].text}`] = []
        for(var link in linkDataArray){
            if(nodeDataArray[fragment].key == linkDataArray[link].from){
                 if(linkDataArray[link].to.match(/^quality.*/)) {
-                    console.log(nodeDataArray[fragment].key, linkDataArray[link].to)
-                    attr[`${nodeDataArray[fragment].key}`].push(findText(nodeDataArray, linkDataArray[link].to))
+                    attr[`${nodeDataArray[fragment].text}`].push(findText(nodeDataArray, linkDataArray[link].to))
 
                 }
             }
