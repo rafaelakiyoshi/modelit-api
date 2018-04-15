@@ -66,10 +66,13 @@ exports.addDiagram = function (req, res) {
 };
 
 exports.listDiagram = function (req, res) {
+    console.log('listando diagramas...')
     Diagram.find({ emailOwner: req.params.id }, function (error, diagrams) {
         if (error != null) {
+            console.log('erro')
             res.json({ message: err });
         } else {
+            console.log('diagramas', diagrams)
             res.json(diagrams)
         }
     })

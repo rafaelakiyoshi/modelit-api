@@ -22,7 +22,11 @@ def ${myDiagram.nodeDataArray[fragment].text.toLowerCase()}(request):
 `
         }
     }
+    if(writeFile){
+        classGenerator('views', controller)
+    }
     return controller
+    
 }
 
 
@@ -64,17 +68,17 @@ stringAttr
         models = models + strings[model]
     }
     if(writeFile){
-        var controllers = this.codinControllers(diagram, writeFile, strings)
-        classGenerator(models)
+        var controllers = this.codingControllers(diagram, writeFile, strings)
+        classGenerator('models', models)
     } else {
         return [models, strings]
     }
 }
 
 
-classGenerator = (classInfo) => {
+classGenerator = (file, classInfo) => {
 
-    fs.writeFile(__dirname + '/../../django-boilerplate/mysite/mysite/models.py', classInfo, (err) => {
+    fs.writeFile(__dirname + `/../../django-boilerplate/mysite/mysite/${file}.py`, classInfo, (err) => {
         if (err) {
           return console.log(err);
         }
