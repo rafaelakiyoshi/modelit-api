@@ -1,7 +1,6 @@
 const fs = require('fs');
 
 exports.codingControllers = async (diagram, writeFile=true, strings) => {
-    console.log('TENTANDO CODAR CONTROLLERS!', strings)
     var myDiagram = JSON.parse(diagram.json)
     var controller = 
 `from django.http import HttpResponse
@@ -11,14 +10,41 @@ exports.codingControllers = async (diagram, writeFile=true, strings) => {
 `from .controller import ${Object.keys(strings)[model]}
 `   
     }
+    var goals = {}
     for (var fragment in myDiagram.nodeDataArray) {
-        console.log(myDiagram.nodeDataArray[fragment])
+        var methods = ``
+        var resolutions = ``
+        if(myDiagram.nodeDataArray[fragment].category == 'goal'){
+            for(var link in myDiagram.linkDataArray){
+                if(myDiagram.linkDataArray[link].to == myDiagram.nodeDataArray[fragment].key){
+                    console.log(myDiagram.linkDataArray[link].from)
+                    goals[`${myDiagram.linkDataArray[link].from}`] = []
+                    goals[`${myDiagram.linkDataArray[link].from}`].push(
+`    #Should resolve ${myDiagram.nodeDataArray[fragment].text} softgoal...`)
+                    console.log(goals)
+                }
+            }
+        }
         if(myDiagram.nodeDataArray[fragment].category == 'task'){
-            console.log('DEU MATCH COM TASK: ', myDiagram.nodeDataArray[fragment])
+            console.log(goals)
+            for(var link in myDiagram.linkDataArray){
+                if(myDiagram.linkDataArray[link].to == myDiagram.nodeDataArray[fragment].key && myDiagram.linkDataArray[link].category == '-|-'){
+                    methods = methods + 
+`    
+    ${findText(myDiagram.nodeDataArray ,myDiagram.linkDataArray[link].from)}()`
+                }
+            }
+            console.log(goals)
+            if(goals[myDiagram.nodeDataArray[fragment].key]){
+                console.log('dwedwe', goals[myDiagram.nodeDataArray[fragment].key][0])
+                resolutions = resolutions + goals[myDiagram.nodeDataArray[fragment].key][0]
+            }
             controller = controller +
 `
-def ${myDiagram.nodeDataArray[fragment].text.toLowerCase()}(request):
+def ${myDiagram.nodeDataArray[fragment].text.toLowerCase().replace(' ','_')}(request):${methods}
+${resolutions}
     return HttpResponse()
+
 `
         }
     }
